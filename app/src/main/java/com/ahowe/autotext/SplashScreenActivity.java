@@ -5,21 +5,20 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
-import com.example.autosms.com.example.autosms.database.DelayedMessageContract;
-
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class SplashScreenActivity extends Activity
 {
-    DelayedMessageContract.DelayedMessageDbHelper dbHelper;
+    DatabaseHelper.DBAdapter dbHelper;
+    private static int SPLASH_TIMEOUT = 2000;
 
     Timer timer;
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        this.setContentView(R.layout.splash_screen);
-        dbHelper = new DelayedMessageContract.DelayedMessageDbHelper(this);
+        this.setContentView(R.layout.activity_splash_screen);
+        dbHelper = new DatabaseHelper.DBAdapter(this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         dbHelper.onCreate(db);
         //dbHelper.clearDB();
@@ -30,7 +29,7 @@ public class SplashScreenActivity extends Activity
     public void EndSplash()
     {
         timer = new Timer(true);
-        timer.schedule(new SplashTask(), 4000);
+        timer.schedule(new SplashTask(), SPLASH_TIMEOUT);
     }
 
     class SplashTask extends TimerTask {
