@@ -38,6 +38,7 @@ public class SplashScreenActivity extends Activity
             Intent intro1 = new Intent(SplashScreenActivity.this, MessageLibraryActivity.class);
             timer.cancel();
             startActivity(intro1);
+            finish();
         }
     }
 
