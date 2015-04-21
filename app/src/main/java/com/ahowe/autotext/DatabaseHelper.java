@@ -1,10 +1,14 @@
 package com.ahowe.autotext;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Stephen on 2/8/2015.
@@ -67,5 +71,38 @@ public final class DatabaseHelper {
             SQLiteDatabase db = getWritableDatabase();
             db.execSQL(SQL_DELETE_ENTRIES);
         }
+
+        public SQLiteDatabase getDB() {
+            return getReadableDatabase();
+        }
+    }
+
+    /**
+     *
+     * @return all the messages from the database in a List
+     */
+    public static List<Text> getMessages(SQLiteDatabase db) {
+        String[] cols = {
+                DelayedMessageEntry._ID,
+                DelayedMessageEntry.COLUMN_NAME_CONTACT,
+                DelayedMessageEntry.COLUMN_NAME_MESSAGE,
+                DelayedMessageEntry.COLUMN_NAME_YEAR,
+                DelayedMessageEntry.COLUMN_NAME_MONTH,
+                DelayedMessageEntry.COLUMN_NAME_DAY,
+                DelayedMessageEntry.COLUMN_NAME_HOUR,
+                DelayedMessageEntry.COLUMN_NAME_MINUTE
+        };
+        Cursor c = db.query(DelayedMessageEntry.TABLE_NAME, cols, null, null, null, null, null);
+        c.moveToFirst();
+        List<Text> list = new ArrayList<Text>(c.getCount());
+        for (int i = 0; i < c.getCount(); i++) {
+            list.add(new Text(c.getString(c.getColumnIndex(cols[2])),
+                    c.getInt(c.getColumnIndex(cols[1])),
+                    "...",
+                    c.getLong(c.getColumnIndex(cols[5])),
+                    0));
+        }
+
+        return list;
     }
 }

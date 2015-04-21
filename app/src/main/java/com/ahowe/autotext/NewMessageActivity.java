@@ -1,7 +1,10 @@
 package com.ahowe.autotext;
 
 import android.app.AlarmManager;
+import android.app.DatePickerDialog;
+import android.app.DialogFragment;
 import android.app.PendingIntent;
+import android.app.TimePickerDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,8 +12,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -34,7 +35,7 @@ import java.util.Set;
 /**
  * Created by jbruzek on 4/17/15.
  */
-public class NewMessageActivity extends ActionBarActivity {
+public class NewMessageActivity extends ActionBarActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
     private static final int CONTACT_PICKER_RESULT = 501;
 
@@ -42,9 +43,14 @@ public class NewMessageActivity extends ActionBarActivity {
     private Toolbar contactBar;
     private EditText text;
     private Button send;
-    private DatePicker date;
-    private TimePicker timePicker;
+    private Button date;
+    private Button timePicker;
     private String phoneNumber;
+    int year = -1;
+    int month = -1;
+    int day = -1;
+    int hour = -1;
+    int min = -1;
 
     private DatabaseHelper.DBAdapter dbHelper;
 
@@ -55,6 +61,20 @@ public class NewMessageActivity extends ActionBarActivity {
 
         toolbar = (Toolbar) findViewById(R.id.new_message_tool_bar);
         toolbar.setTitle("New Message");
+//        toolbar.setSubtitle("To");
+//        toolbar.inflateMenu(R.menu.contact_menu);
+//        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+//            @Override
+//            public boolean onMenuItemClick(MenuItem item) {
+//                int id = item.getItemId();
+//                if (id == R.id.find_contact) {
+//                    Intent contactPickerIntent = new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
+//                    startActivityForResult(contactPickerIntent, CONTACT_PICKER_RESULT);
+//                    return true;
+//                }
+//                return false;
+//            }
+//        });
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
@@ -77,8 +97,22 @@ public class NewMessageActivity extends ActionBarActivity {
 
         text = (EditText) findViewById(R.id.new_message_input);
         send = (Button) findViewById(R.id.send_button);
-        date = (DatePicker) findViewById(R.id.date_picker);
-        timePicker = (TimePicker) findViewById(R.id.time_picker);
+        date = (Button) findViewById(R.id.date_button);
+        date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DatePickerFragment f = new DatePickerFragment();
+                f.show(getFragmentManager(), "Date Picker");
+            }
+        });
+        timePicker = (Button) findViewById(R.id.time_button);
+        timePicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TimePickerFragment f = new TimePickerFragment();
+                f.show(getFragmentManager(), "Time Fragment");
+            }
+        });
 
         dbHelper = new DatabaseHelper.DBAdapter(this);
 
@@ -138,12 +172,10 @@ public class NewMessageActivity extends ActionBarActivity {
         intentAlarm.putExtra("Message", text.getText().toString());
 
         long time = 0;
-        int year = date.getYear();
-        int month = date.getMonth();
-        int day = date.getDayOfMonth();
-
-        int hour = timePicker.getCurrentHour();
-        int min = timePicker.getCurrentMinute();
+        if (year == -1 || month == -1 || day == -1 || hour == -1 || min == -1) {
+            Toast.makeText(this, "Please select a date to send the text", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         cal.set(year,month,day,hour,min,0);
         time = cal.getTimeInMillis();
@@ -196,5 +228,15 @@ public class NewMessageActivity extends ActionBarActivity {
         //recordSet.
 
         finish();
+    }
+
+    @Override
+    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+        Toast.makeText(this, "Date: " + monthOfYear + "/" + dayOfMonth + "/" + year, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+        Toast.makeText(this, "Time: " + hourOfDay + ":" + minute, Toast.LENGTH_SHORT).show();
     }
 }
