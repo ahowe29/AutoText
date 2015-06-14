@@ -2,11 +2,14 @@ package com.ahowe.autotext;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.ahowe.autotext.models.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +27,8 @@ public class TextListAdapter extends RecyclerView.Adapter<TextListAdapter.ViewHo
         tcb = cb;
         context = c;
         items = new ArrayList<Text>();
-        items.add(new Text("messagething", 123456, "", 98765, 13131));
-        items.add(new Text("messagething1", 123457, "", 98765, 13131));
-        items.add(new Text("messagething2", 123458, "", 98765, 13131));
-        items.add(new Text("messagething3", 123459, "", 98765, 13131));
+        items.addAll(list);
+        Log.d("ADAPTER", "initializing adapter, data size: " + items.size());
     }
 
     /**
@@ -74,9 +75,9 @@ public class TextListAdapter extends RecyclerView.Adapter<TextListAdapter.ViewHo
         //do stuff with the VH items
         Text t = items.get(i);
 
-        viewHolder.message.setText(t.text());
-        viewHolder.number.setText(Integer.toString(t.number()));
-        viewHolder.time.setText(Long.toString(t.sendDate()));
+        viewHolder.message.setText(t.getMessage());
+        viewHolder.number.setText("");
+        viewHolder.time.setText("");
     }
 
     @Override

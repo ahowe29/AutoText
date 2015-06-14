@@ -1,7 +1,6 @@
-package com.ahowe.autotext;
+package com.ahowe.autotext.screens;
 
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -9,8 +8,12 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 
+import com.ahowe.autotext.R;
+import com.ahowe.autotext.TextListAdapter;
+import com.ahowe.autotext.TextListCallbacks;
+import com.ahowe.autotext.database.TextDataLayer;
+import com.ahowe.autotext.models.Text;
 import com.software.shell.fab.ActionButton;
 
 import java.util.ArrayList;
@@ -23,6 +26,7 @@ public class MessageLibraryActivity extends ActionBarActivity implements TextLis
 
     private Toolbar toolbar;
     private RecyclerView recycler;
+    private TextDataLayer dataLayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +36,9 @@ public class MessageLibraryActivity extends ActionBarActivity implements TextLis
         toolbar = (Toolbar) findViewById(R.id.tool_bar);
         toolbar.setTitle("AutoText");
         setSupportActionBar(toolbar);
+
+        dataLayer = new TextDataLayer(this);
+        dataLayer.openDB();
 
         ActionButton actionButton = (ActionButton) findViewById(R.id.new_text_button);
         actionButton.setButtonColor(getResources().getColor(R.color.accent));
@@ -49,13 +56,20 @@ public class MessageLibraryActivity extends ActionBarActivity implements TextLis
 
         recycler = (RecyclerView) findViewById(R.id.text_list);
         recycler.setLayoutManager(new LinearLayoutManager(this));
-        SQLiteDatabase db = new DatabaseHelper.DBAdapter(this).getWritableDatabase();
-//        List<Text> t = DatabaseHelper.getMessages(db);
-//        Log.d("items", "" + t.size());
-//        for (int i = 0; i < t.size(); i++) {
-//            Log.d("item " + i, "" + t.get(i).number());
-//            Log.d("item " + i, "" + t.get(i).sendDate());
-//        }
-        recycler.setAdapter(new TextListAdapter(this, this, DatabaseHelper.getMessages(db)));
+        List<Text> list = dataLayer.getAllTexts(300);
+        Log.d("ACTIVITY", "Got all texts, size: " + list.size());
+        recycler.setAdapter(new TextListAdapter(this, this, list));
+    }
+
+    @Override
+    protected void onPause() {
+        dataLayer.closeDB();
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        dataLayer.openDB();
+        super.onResume();
     }
 }

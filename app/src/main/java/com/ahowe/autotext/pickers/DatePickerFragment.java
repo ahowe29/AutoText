@@ -1,4 +1,4 @@
-package com.ahowe.autotext;
+package com.ahowe.autotext.pickers;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;

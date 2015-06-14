@@ -1,23 +1,19 @@
-package com.ahowe.autotext;
+package com.ahowe.autotext.screens;
 
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
-import android.app.DialogFragment;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -26,11 +22,17 @@ import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.ahowe.autotext.AlarmReceiver;
+import com.ahowe.autotext.pickers.DatePickerFragment;
+import com.ahowe.autotext.R;
+import com.ahowe.autotext.pickers.TimePickerFragment;
+import com.ahowe.autotext.database.TextDataLayer;
+import com.ahowe.autotext.models.Contact;
+import com.ahowe.autotext.models.Text;
+
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Created by jbruzek on 4/17/15.
@@ -39,20 +41,19 @@ public class NewMessageActivity extends ActionBarActivity implements DatePickerD
 
     private static final int CONTACT_PICKER_RESULT = 501;
 
+    private TextDataLayer dataLayer;
     private Toolbar toolbar;
     private Toolbar contactBar;
     private EditText text;
     private Button send;
     private Button date;
     private Button timePicker;
-    private String phoneNumber;
+    private Contact contact;
     int year = -1;
     int month = -1;
     int day = -1;
     int hour = -1;
     int min = -1;
-
-    private DatabaseHelper.DBAdapter dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,14 +115,15 @@ public class NewMessageActivity extends ActionBarActivity implements DatePickerD
             }
         });
 
-        dbHelper = new DatabaseHelper.DBAdapter(this);
-
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 sendText();
             }
         });
+
+        dataLayer = new TextDataLayer(this);
+        dataLayer.openDB();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
@@ -144,11 +146,11 @@ public class NewMessageActivity extends ActionBarActivity implements DatePickerD
         cursor.moveToFirst();
 
         try {
+            contact = new Contact();
             int c = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
-            contactBar.setSubtitle(cursor.getString(c));
             int c2 = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
-            phoneNumber = cursor.getString(c2);
-            Log.d("phoneNumber", phoneNumber);
+            contact = new Contact(cursor.getString(c), cursor.getString(c2));
+            contactBar.setSubtitle(contact.getName());
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -168,7 +170,7 @@ public class NewMessageActivity extends ActionBarActivity implements DatePickerD
         GregorianCalendar cal = new GregorianCalendar();
 
         Intent intentAlarm = new Intent(this, AlarmReceiver.class);
-        intentAlarm.putExtra("Contact", phoneNumber);
+        intentAlarm.putExtra("Contact", contact.getNumber());
         intentAlarm.putExtra("Message", text.getText().toString());
 
         long time = 0;
@@ -192,51 +194,36 @@ public class NewMessageActivity extends ActionBarActivity implements DatePickerD
         SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
         SharedPreferences.Editor editor = pref.edit();
 
-        DelayedMessageRecord record = new DelayedMessageRecord();
-        record.setContact(phoneNumber);
-        record.setMessage(text.getText().toString());
-        record.setYear(year);
-        record.setMonth(month);
-        record.setDay(day);
-        record.setHour(hour);
-        record.setMinute(min);
-
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-
-        values.put(DatabaseHelper.DelayedMessageEntry.COLUMN_NAME_CONTACT, phoneNumber);
-        values.put(DatabaseHelper.DelayedMessageEntry.COLUMN_NAME_MESSAGE, text.getText().toString());
-        values.put(DatabaseHelper.DelayedMessageEntry.COLUMN_NAME_YEAR, year);
-        values.put(DatabaseHelper.DelayedMessageEntry.COLUMN_NAME_MONTH, month);
-        values.put(DatabaseHelper.DelayedMessageEntry.COLUMN_NAME_DAY, day);
-        values.put(DatabaseHelper.DelayedMessageEntry.COLUMN_NAME_HOUR, hour);
-        values.put(DatabaseHelper.DelayedMessageEntry.COLUMN_NAME_MINUTE, min);
-
-        long newRowId = db.insert(
-                DatabaseHelper.DelayedMessageEntry.TABLE_NAME,
-                null,
-                values
-        );
-
-        Log.i("TESTING", "ID = " + newRowId);
-
-
-
-        Set<String> recordSet = new HashSet<String>();
-
-        //recordSet.
+        Text newText = new Text();
+        newText.setMessage(text.getText().toString());
+        newText.setRecipient(contact);
+        dataLayer.insertText(newText);
 
         finish();
     }
 
     @Override
     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-        Toast.makeText(this, "Date: " + monthOfYear + "/" + dayOfMonth + "/" + year, Toast.LENGTH_SHORT).show();
+        this.year = year;
+        this.month = monthOfYear;
+        this.day = dayOfMonth;
     }
 
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        Toast.makeText(this, "Time: " + hourOfDay + ":" + minute, Toast.LENGTH_SHORT).show();
+        this.hour = hourOfDay;
+        this.min = minute;
+    }
+
+    @Override
+    protected void onPause() {
+        dataLayer.closeDB();
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        dataLayer.openDB();
+        super.onResume();
     }
 }

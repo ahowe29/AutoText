@@ -1,4 +1,4 @@
-package com.ahowe.autotext;
+package com.ahowe.autotext.pickers;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
