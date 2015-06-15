@@ -2,6 +2,7 @@ package com.ahowe.autotext.screens;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,7 +15,6 @@ import com.ahowe.autotext.TextListAdapter;
 import com.ahowe.autotext.TextListCallbacks;
 import com.ahowe.autotext.database.TextDataLayer;
 import com.ahowe.autotext.models.Text;
-import com.software.shell.fab.ActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,12 +40,7 @@ public class MessageLibraryActivity extends ActionBarActivity implements TextLis
         dataLayer = new TextDataLayer(this);
         dataLayer.openDB();
 
-        ActionButton actionButton = (ActionButton) findViewById(R.id.new_text_button);
-        actionButton.setButtonColor(getResources().getColor(R.color.accent));
-        actionButton.setButtonColorPressed(getResources().getColor(R.color.accentDark));
-        actionButton.setImageDrawable(getResources().getDrawable(R.drawable.fab_plus_icon));
-        actionButton.show();
-
+        FloatingActionButton actionButton = (FloatingActionButton) findViewById(R.id.new_text_button);
         actionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

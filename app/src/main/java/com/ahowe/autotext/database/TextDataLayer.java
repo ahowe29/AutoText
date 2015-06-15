@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.ahowe.autotext.models.Contact;
 import com.ahowe.autotext.models.Text;
 
 import java.util.ArrayList;
@@ -20,7 +21,11 @@ public class TextDataLayer {
     private DataBaseAdapter dbAdapter;
     private String[] allColumns = {
             dbAdapter.COLUMN_ID,
-            dbAdapter.COLUMN_TEXT
+            dbAdapter.COLUMN_TEXT,
+            dbAdapter.COLUMN_RECEIVER_NAME,
+            dbAdapter.COLUMN_RECEIVER_NUMBER,
+            dbAdapter.COLUMN_CREATION_DATE,
+            dbAdapter.COLUMN_SEND_DATE
     };
 
     /**
@@ -52,6 +57,10 @@ public class TextDataLayer {
     public void insertText(Text text) {
         ContentValues values = new ContentValues();
         values.put(dbAdapter.COLUMN_TEXT, text.getMessage());
+        values.put(dbAdapter.COLUMN_RECEIVER_NAME, text.getRecipient().getName());
+        values.put(dbAdapter.COLUMN_RECEIVER_NUMBER, text.getRecipient().getNumber());
+        values.put(dbAdapter.COLUMN_CREATION_DATE, text.getCreationDate());
+        values.put(dbAdapter.COLUMN_SEND_DATE, text.getSendDate());
         database.insert(dbAdapter.TABLE_TEXTS, null, values);
     }
 
@@ -62,7 +71,7 @@ public class TextDataLayer {
      */
     public Cursor getAllTextsCursor(int limit) {
         return database.query(dbAdapter.TABLE_TEXTS,
-                allColumns, null, null, null, null, null, String.valueOf(limit));
+                allColumns, null, null, null, null, dbAdapter.COLUMN_ID + " DESC", String.valueOf(limit));
     }
 
     /**
@@ -94,6 +103,9 @@ public class TextDataLayer {
         Text text = new Text();
         text.setId(cursor.getLong(0));
         text.setMessage(cursor.getString(1));
+        text.setRecipient(new Contact(cursor.getString(2), cursor.getString(3)));
+        text.setCreationDate(cursor.getLong(4));
+        text.setSendDate(cursor.getLong(5));
         return text;
     }
 

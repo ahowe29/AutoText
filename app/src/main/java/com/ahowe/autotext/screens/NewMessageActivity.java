@@ -197,6 +197,8 @@ public class NewMessageActivity extends ActionBarActivity implements DatePickerD
         Text newText = new Text();
         newText.setMessage(text.getText().toString());
         newText.setRecipient(contact);
+        newText.setSendDate(time);
+        newText.setCreationDate(new Date().getTime());
         dataLayer.insertText(newText);
 
         finish();

@@ -2,6 +2,7 @@ package com.ahowe.autotext;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 import com.ahowe.autotext.models.Text;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -76,8 +78,8 @@ public class TextListAdapter extends RecyclerView.Adapter<TextListAdapter.ViewHo
         Text t = items.get(i);
 
         viewHolder.message.setText(t.getMessage());
-        viewHolder.number.setText("");
-        viewHolder.time.setText("");
+        viewHolder.number.setText(t.getRecipient().getNumber());
+        viewHolder.time.setText(DateFormat.format("MM/dd/yyyy", new Date(t.getSendDate())).toString());
     }
 
     @Override

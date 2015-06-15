@@ -30,14 +30,17 @@
 
     </LinearLayout>
 
-    <com.software.shell.fab.ActionButton
+    <android.support.design.widget.FloatingActionButton
+        xmlns:fab="http://schemas.android.com/apk/res-auto"
         android:id="@+id/new_text_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="@dimen/fab_margin"
-        android:layout_marginBottom="@dimen/fab_margin"
-        />
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/ic_add"
+        fab:backgroundTint="@color/accent"
+        fab:elevation="4dp"
+        fab:borderWidth="0dp" />
 
 </RelativeLayout>
