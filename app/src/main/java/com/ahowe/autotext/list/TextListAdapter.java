@@ -1,4 +1,4 @@
-package com.ahowe.autotext;
+package com.ahowe.autotext.list;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ahowe.autotext.R;
+import com.ahowe.autotext.TextListCallbacks;
 import com.ahowe.autotext.models.Text;
 
 import java.util.ArrayList;
@@ -79,7 +81,7 @@ public class TextListAdapter extends RecyclerView.Adapter<TextListAdapter.ViewHo
 
         viewHolder.message.setText(t.getMessage());
         viewHolder.number.setText(t.getRecipient().getNumber());
-        viewHolder.time.setText(DateFormat.format("MM/dd/yyyy", new Date(t.getSendDate())).toString());
+        viewHolder.time.setText(DateFormat.format("MM/dd h:mma", new Date(t.getSendDate())).toString());
     }
 
     @Override

@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.telephony.SmsManager;
 import android.widget.Toast;
 
+import com.ahowe.autotext.notifications.NotificationManager;
+
 /**
  * Created by Stephen on 2/8/2015.
  */
@@ -17,6 +19,9 @@ public class AlarmReceiver extends BroadcastReceiver {
         String message = intent.getStringExtra("Message");
 
         String toast = "Sending " + message + " to " + phone;
+
+        //send a notification
+        NotificationManager.buildNotification(context, toast, toast);
 
         Toast.makeText(context, toast, Toast.LENGTH_LONG).show();
 

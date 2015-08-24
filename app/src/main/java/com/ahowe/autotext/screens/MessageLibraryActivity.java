@@ -11,12 +11,12 @@ import android.util.Log;
 import android.view.View;
 
 import com.ahowe.autotext.R;
-import com.ahowe.autotext.TextListAdapter;
+import com.ahowe.autotext.list.ListItemTouchListener;
+import com.ahowe.autotext.list.TextListAdapter;
 import com.ahowe.autotext.TextListCallbacks;
 import com.ahowe.autotext.database.TextDataLayer;
 import com.ahowe.autotext.models.Text;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,6 +54,7 @@ public class MessageLibraryActivity extends ActionBarActivity implements TextLis
         List<Text> list = dataLayer.getAllTexts(300);
         Log.d("ACTIVITY", "Got all texts, size: " + list.size());
         recycler.setAdapter(new TextListAdapter(this, this, list));
+        new ListItemTouchListener().addRecycler(recycler);
     }
 
     @Override
